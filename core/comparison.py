@@ -61,8 +61,9 @@ class ActionComparator:
             numpy 数组 (frames x metrics)
         """
         sequences = []
+        frames = metrics.get('frames', [])
         
-        for frame_data in metrics['frames']:
+        for frame_data in frames:
             frame_values = []
             for metric_name in metric_names:
                 value = frame_data['metrics'].get(metric_name)
@@ -70,6 +71,21 @@ class ActionComparator:
                     value = 0.0  # 用 0 填充缺失值
                 frame_values.append(value)
             sequences.append(frame_values)
+        
+        # 兼容仅包含 metrics_summary 的模板（无逐帧数据）
+        # 这样可以支持投标 Demo 的轻量模板文件
+        if not sequences and metrics.get('metrics_summary'):
+            frame_count = int(metrics.get('video_info', {}).get('total_frames', 90))
+            frame_count = max(1, min(frame_count, 300))  # 防止异常值
+            summary = metrics['metrics_summary']
+            
+            template_values = []
+            for metric_name in metric_names:
+                metric_summary = summary.get(metric_name, {})
+                value = metric_summary.get('mean', 0.0)
+                template_values.append(float(value))
+            
+            sequences = [template_values for _ in range(frame_count)]
         
         return np.array(sequences)
     
@@ -138,6 +154,11 @@ class ActionComparator:
         template_sequence = self.extract_metric_sequence(template, metric_names)
         
         # 归一化
+        if len(user_sequence) == 0:
+            raise ValueError("User metric sequence is empty. Please verify extracted metrics.")
+        if len(template_sequence) == 0:
+            raise ValueError("Template sequence is empty. Please provide template frames or metrics_summary.")
+        
         if self.normalize:
             user_sequence = self.normalize_sequence(user_sequence)
             template_sequence = self.normalize_sequence(template_sequence)

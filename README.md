@@ -24,13 +24,13 @@ snowsurfmaster 是一个面向雪场商用的滑雪动作分析系统，通过�
 
 | 功能模块 | 状态 | 说明 |
 |---------|------|------|
-| 视频上传 | 🟢 进行中 | 支持 MP4/MOV 格式 |
-| MediaPipe 骨骼提取 | 🟢 进行中 | 33 个关键点 BlazePose |
-| 关节角度计算 | 🟡 待开发 | 膝、髋、肩等核心角度 |
-| DTW 动作对比 | 🟡 待开发 | 与标准模板相似度评分 |
-| 大模型反馈生成 | 🟡 待开发 | Qwen-7B + RAG |
-| 可视化报告 | 🟡 待开发 | 骨骼叠加视频 + 热力图 |
-| Web 演示界面 | 🟡 待开发 | Streamlit 快速搭建 |
+| 视频上传 | 🟢 已实现 | 支持 MP4/MOV 上传并触发分析 |
+| MediaPipe 骨骼提取 | 🟢 已实现 | 33 个关键点 BlazePose |
+| 关节角度计算 | 🟢 已实现 | 膝、髋、肩、前倾、对称性指标 |
+| DTW 动作对比 | 🟢 已实现 | 与标准模板进行相似度评分 |
+| 大模型反馈生成 | 🟢 已实现 | 本地模型 + OpenAI 兼容 API + 模板兜底 |
+| 可视化报告 | 🟡 部分实现 | HTML 文本报告已实现；骨骼叠加视频/热力图待补齐 |
+| Web 演示界面 | 🟢 已实现 | Streamlit 上传与结果展示 |
 
 ### 投标展示重点
 
@@ -150,6 +150,28 @@ python scripts/download_templates.py
 
 # 5. 运行 Demo
 streamlit run web/app.py
+```
+
+### 大模型反馈方式（本地 / OpenAI 兼容 API）
+
+项目支持两种反馈生成方式（见 `config.yaml -> llm`）：
+
+1. `provider: local`  
+   使用本地模型（默认 Qwen-7B）。
+2. `provider: openai_compatible`  
+   使用 OpenAI 格式接口（`/chat/completions`），可对接 OpenAI 或兼容网关（如 vLLM/OneAPI）。
+
+示例配置：
+
+```yaml
+llm:
+  provider: openai_compatible
+  api_base_url: "https://api.openai.com/v1"
+  api_path: /chat/completions
+  api_key: "YOUR_API_KEY"
+  api_model: "gpt-4o-mini"
+  temperature: 0.7
+  max_tokens: 512
 ```
 
 ### 使用示例
