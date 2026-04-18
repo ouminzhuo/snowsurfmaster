@@ -38,11 +38,27 @@ comparison:
 
 # Large language model
 llm:
+  # provider: local | openai_compatible
+  provider: local
+  
+  # 本地模型配置（provider=local）
   model_name: Qwen/Qwen-7B-Chat
   quantization: 4bit  # 4bit or 8bit or none
   max_length: 512
   temperature: 0.7
   top_p: 0.9
+  
+  # OpenAI 兼容 API 配置（provider=openai_compatible）
+  # 示例 base_url:
+  # - OpenAI: https://api.openai.com/v1
+  # - 自建 vLLM / 网关: http://localhost:8000/v1
+  api_base_url: ""
+  api_path: /chat/completions
+  api_key: ""
+  api_model: gpt-4o-mini
+  api_timeout: 60
+  max_tokens: 512
+  system_prompt: "你是一位专业的滑雪教练，请基于动作量化数据给出清晰、友好的训练建议。"
   
 # RAG settings
 rag:
