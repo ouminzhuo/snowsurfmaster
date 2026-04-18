@@ -1,0 +1,74 @@
+# snowsurfmaster Configuration
+
+# Project settings
+project:
+  name: snowsurfmaster
+  version: 0.1-Tender
+  phase: tender_demo
+
+# MediaPipe settings
+mediapipe:
+  model_complexity: 1  # 0=fast, 1=balanced, 2=accurate
+  smooth_landmarks: true
+  enable_segmentation: false
+  min_detection_confidence: 0.5
+  min_tracking_confidence: 0.5
+
+# Skeleton extraction
+extraction:
+  output_format: json  # json or csv
+  keypoints: 33  # BlazePose 33 keypoints
+  fps: 30  # Output FPS
+
+# Motion analysis
+analysis:
+  metrics:
+    - knee_angle
+    - hip_angle
+    - shoulder_angle
+    - forward_lean
+    - symmetry_score
+  window_size: 10  # Frames for smoothing
+
+# DTW comparison
+comparison:
+  algorithm: fastdtw
+  radius: 3  # DTW radius
+  normalize: true
+
+# Large language model
+llm:
+  model_name: Qwen/Qwen-7B-Chat
+  quantization: 4bit  # 4bit or 8bit or none
+  max_length: 512
+  temperature: 0.7
+  top_p: 0.9
+  
+# RAG settings
+rag:
+  enabled: true
+  knowledge_base: data/knowledge/skiing_manuals
+  top_k: 3
+
+# Output settings
+output:
+  report_format: html  # html or pdf
+  video_overlay: true
+  heatmap: true
+  save_raw_data: true
+
+# Demo settings
+demo:
+  preset_videos:
+    - data/demo/demo_beginner.mp4
+    - data/demo/demo_intermediate.mp4
+    - data/demo/demo_pro.mp4
+  preset_templates:
+    - data/templates/parallel_turn_pro.json
+    - data/templates/parallel_turn_beginner.json
+
+# Hardware (for deployment)
+hardware:
+  gpu_enabled: false
+  device: cuda  # cuda or cpu
+  num_workers: 4

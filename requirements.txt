@@ -1,0 +1,36 @@
+# Core dependencies
+mediapipe>=0.10.9
+opencv-python>=4.8.0
+numpy>=1.24.0
+pandas>=2.0.0
+
+# Motion analysis
+pybodytrack>=0.1.0
+fastdtw>=0.3.4
+scipy>=1.11.0
+
+# Deep learning (for Qwen)
+torch>=2.0.0
+transformers>=4.35.0
+accelerate>=0.24.0
+bitsandbytes>=0.41.0
+
+# Web interface
+streamlit>=1.28.0
+fastapi>=0.104.0
+uvicorn>=0.24.0
+python-multipart>=0.0.6
+
+# Utilities
+pyyaml>=6.0.1
+loguru>=0.7.2
+tqdm>=4.66.0
+pillow>=10.0.0
+
+# Testing
+pytest>=7.4.0
+pytest-cov>=4.1.0
+
+# Video processing
+ffmpeg-python>=0.2.0
+moviepy>=1.0.3

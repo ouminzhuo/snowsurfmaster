@@ -1,0 +1,15 @@
+{
+  "template_name": "parallel_turn_beginner",
+  "description": "初学者平行式转弯参考模板",
+  "video_info": {"fps": 30, "total_frames": 90, "width": 1920, "height": 1080},
+  "frames": [],
+  "keypoints": ["nose", "left_shoulder", "right_shoulder", "left_hip", "right_hip", "left_knee", "right_knee", "left_ankle", "right_ankle"],
+  "metrics_summary": {
+    "left_knee_angle": {"mean": 140.0, "std": 10.0, "range": [120, 160]},
+    "right_knee_angle": {"mean": 138.0, "std": 10.0, "range": [118, 158]},
+    "left_hip_angle": {"mean": 160.0, "std": 12.0, "range": [135, 185]},
+    "right_hip_angle": {"mean": 158.0, "std": 12.0, "range": [133, 183]},
+    "forward_lean": {"mean": -8.0, "std": 5.0, "range": [-15, 0]},
+    "symmetry_score": {"mean": 75.0, "std": 10.0, "range": [55, 95]}
+  }
+}

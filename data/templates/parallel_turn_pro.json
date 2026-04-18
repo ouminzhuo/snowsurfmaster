@@ -1,0 +1,15 @@
+{
+  "template_name": "parallel_turn_pro",
+  "description": "专业选手平行式转弯动作模板",
+  "video_info": {"fps": 30, "total_frames": 90, "width": 1920, "height": 1080},
+  "frames": [],
+  "keypoints": ["nose", "left_shoulder", "right_shoulder", "left_hip", "right_hip", "left_knee", "right_knee", "left_ankle", "right_ankle"],
+  "metrics_summary": {
+    "left_knee_angle": {"mean": 130.0, "std": 5.0, "range": [120, 140]},
+    "right_knee_angle": {"mean": 128.0, "std": 5.0, "range": [118, 138]},
+    "left_hip_angle": {"mean": 150.0, "std": 8.0, "range": [135, 165]},
+    "right_hip_angle": {"mean": 148.0, "std": 8.0, "range": [133, 163]},
+    "forward_lean": {"mean": -15.0, "std": 3.0, "range": [-20, -10]},
+    "symmetry_score": {"mean": 90.0, "std": 5.0, "range": [80, 100]}
+  }
+}
