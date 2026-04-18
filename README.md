@@ -152,6 +152,28 @@ python scripts/download_templates.py
 streamlit run web/app.py
 ```
 
+### 大模型反馈方式（本地 / OpenAI 兼容 API）
+
+项目支持两种反馈生成方式（见 `config.yaml -> llm`）：
+
+1. `provider: local`  
+   使用本地模型（默认 Qwen-7B）。
+2. `provider: openai_compatible`  
+   使用 OpenAI 格式接口（`/chat/completions`），可对接 OpenAI 或兼容网关（如 vLLM/OneAPI）。
+
+示例配置：
+
+```yaml
+llm:
+  provider: openai_compatible
+  api_base_url: "https://api.openai.com/v1"
+  api_path: /chat/completions
+  api_key: "YOUR_API_KEY"
+  api_model: "gpt-4o-mini"
+  temperature: 0.7
+  max_tokens: 512
+```
+
 ### 使用示例
 
 ```python

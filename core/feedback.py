@@ -8,6 +8,8 @@ import json
 from typing import Dict, List, Optional
 from pathlib import Path
 from loguru import logger
+import urllib.request
+import urllib.error
 
 
 class FeedbackGenerator:
@@ -24,6 +26,19 @@ class FeedbackGenerator:
         self.model_name = self.config.get('model_name', 'Qwen/Qwen-7B-Chat')
         self.quantization = self.config.get('quantization', '4bit')
         self.temperature = self.config.get('temperature', 0.7)
+        self.max_tokens = self.config.get('max_tokens', 512)
+        
+        # 可选：OpenAI 兼容 API（如 OpenAI / Azure OpenAI / vLLM / OneAPI）
+        self.provider = self.config.get('provider', 'local')  # local / openai_compatible
+        self.api_base_url = self.config.get('api_base_url', '').rstrip('/')
+        self.api_path = self.config.get('api_path', '/chat/completions')
+        self.api_key = self.config.get('api_key')
+        self.api_model = self.config.get('api_model', self.model_name)
+        self.api_timeout = self.config.get('api_timeout', 60)
+        self.system_prompt = self.config.get(
+            'system_prompt',
+            "你是一位专业的滑雪教练，请基于动作量化数据给出清晰、友好的训练建议。"
+        )
         
         self.model = None
         self.tokenizer = None
@@ -184,10 +199,76 @@ class FeedbackGenerator:
         Returns:
             反馈文本
         """
-        if use_llm and self.model is not None:
-            return self._generate_with_llm(comparison_result)
-        else:
+        if not use_llm:
             return self._generate_with_template(comparison_result)
+        
+        # 优先走 OpenAI 兼容 API
+        use_openai_api = (
+            self.provider == 'openai_compatible'
+            or bool(self.api_base_url)
+        )
+        if use_openai_api:
+            try:
+                return self._generate_with_openai_api(comparison_result)
+            except Exception as e:
+                logger.warning(f"OpenAI-compatible API generation failed, fallback to template: {e}")
+                return self._generate_with_template(comparison_result)
+        
+        # 否则走本地模型
+        self.load_model()
+        if self.model is not None:
+            return self._generate_with_llm(comparison_result)
+        
+        return self._generate_with_template(comparison_result)
+
+    def _generate_with_openai_api(self, comparison_result: Dict) -> str:
+        """
+        使用 OpenAI 兼容接口生成反馈
+        
+        接口格式：POST {api_base_url}{api_path}
+        Body: {"model": "...", "messages": [...], "temperature": 0.7, "max_tokens": 512}
+        """
+        if not self.api_base_url:
+            raise ValueError("api_base_url is required for openai_compatible provider")
+        
+        prompt = self.build_prompt(comparison_result)
+        url = f"{self.api_base_url}{self.api_path}"
+        
+        payload = {
+            "model": self.api_model,
+            "messages": [
+                {"role": "system", "content": self.system_prompt},
+                {"role": "user", "content": prompt}
+            ],
+            "temperature": self.temperature,
+            "max_tokens": self.max_tokens
+        }
+        data = json.dumps(payload).encode("utf-8")
+        
+        headers = {
+            "Content-Type": "application/json"
+        }
+        if self.api_key:
+            headers["Authorization"] = f"Bearer {self.api_key}"
+        
+        request = urllib.request.Request(url=url, data=data, headers=headers, method="POST")
+        try:
+            with urllib.request.urlopen(request, timeout=self.api_timeout) as response:
+                body = response.read().decode("utf-8")
+        except urllib.error.HTTPError as e:
+            detail = e.read().decode("utf-8", errors="ignore")
+            raise RuntimeError(f"API HTTPError {e.code}: {detail}") from e
+        
+        result = json.loads(body)
+        content = (
+            result.get("choices", [{}])[0]
+            .get("message", {})
+            .get("content", "")
+        )
+        if not content:
+            raise RuntimeError(f"Invalid API response: {result}")
+        
+        return content.strip()
     
     def _generate_with_llm(self, comparison_result: Dict) -> str:
         """使用大模型生成反馈"""
